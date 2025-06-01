@@ -7,6 +7,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Plus, Mail, MoreHorizontal } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
 
 // Mock users data
 const users = [
@@ -50,10 +51,12 @@ export default function Users() {
             <p className="text-muted-foreground">Manage company users and their permissions</p>
           </div>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        <Link href="/users/add">
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add User
+          </Button>
+        </Link>
       </header>
 
       <div className="flex-1 p-6">
