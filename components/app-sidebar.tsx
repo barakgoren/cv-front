@@ -1,8 +1,17 @@
-"use client"
+"use client";
 
-import { Building2, Home, FileText, Users, Settings, LogOut } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import {
+  Building2,
+  Home,
+  FileText,
+  Users,
+  Settings,
+  LogOut,
+  File,
+  FormInputIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -16,20 +25,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-
-// Mock user data
-const user = {
-  name: "John Smith",
-  email: "john.smith@techcorp.com",
-  role: "admin",
-  company: "TechCorp Solutions",
-  avatar: "/placeholder.svg?height=32&width=32",
-}
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuthStore } from "@/store/auth.store";
+import { useCompany } from "@/services/company.service";
+import { Company } from "@/types/company.type";
+import IndicatedElement from "./IndicatedElement";
 
 const navigation = [
   {
@@ -43,6 +47,11 @@ const navigation = [
     icon: FileText,
   },
   {
+    title: "Templates",
+    url: "/templates",
+    icon: FormInputIcon,
+  },
+  {
     title: "Users",
     url: "/users",
     icon: Users,
@@ -52,14 +61,20 @@ const navigation = [
     url: "/settings",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
 
-  const handleLogout = () => {
-    // In a real app, this would clear auth tokens and redirect
-    window.location.href = "/login"
+  const { data, isLoading, isValidating } = useCompany<Company>({
+    path: `${user?.companyId}`,
+    shouldFetch: !!user && !!user.companyId,
+  });
+
+  if (!user) {
+    return null; // or a loading state
   }
 
   return (
@@ -72,7 +87,13 @@ export function AppSidebar() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold">CV Manager</span>
-              <span className="text-xs text-muted-foreground">{user.company}</span>
+              <span className="text-xs text-muted-foreground">
+                <IndicatedElement
+                  className="w-3 h-3"
+                  content={data?.name}
+                  isLoading={isLoading || isValidating}
+                />
+              </span>
             </div>
           </Link>
           <ThemeToggle />
@@ -103,7 +124,7 @@ export function AppSidebar() {
         <div className="p-3">
           <div className="flex items-center gap-3 mb-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+              <AvatarImage src={"/placeholder.svg"} alt={user.name} />
               <AvatarFallback>
                 {user.name
                   .split(" ")
@@ -114,14 +135,24 @@ export function AppSidebar() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.name}</p>
               <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                <Badge variant={user.role === "admin" ? "default" : "secondary"} className="text-xs">
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
+                <Badge
+                  variant={user.role === "admin" ? "default" : "secondary"}
+                  className="text-xs"
+                >
                   {user.role}
                 </Badge>
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={logout}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Sign out
           </Button>
@@ -130,5 +161,5 @@ export function AppSidebar() {
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

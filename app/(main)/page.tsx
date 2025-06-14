@@ -1,12 +1,47 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { FileText, Users, TrendingUp, Clock, Eye, Download } from "lucide-react"
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  FileText,
+  Users,
+  TrendingUp,
+  Clock,
+  Eye,
+  Download,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+import { useCompany } from "@/services/company.service";
+import { useAuthStore } from "@/store/auth.store";
+import { useEffect } from "react";
+import Loader from "@/components/loader";
+import { Company } from "@/types/company.type";
+import IndicatedElement from "@/components/IndicatedElement";
 
 // Mock data
 const stats = {
@@ -14,7 +49,7 @@ const stats = {
   newApplications: 89,
   pendingReview: 156,
   totalCandidates: 892,
-}
+};
 
 const applicationData = [
   { month: "Jan", applications: 65, interviews: 12 },
@@ -23,7 +58,7 @@ const applicationData = [
   { month: "Apr", applications: 108, interviews: 28 },
   { month: "May", applications: 134, interviews: 35 },
   { month: "Jun", applications: 156, interviews: 42 },
-]
+];
 
 const recentApplications = [
   {
@@ -58,32 +93,46 @@ const recentApplications = [
     status: "pending",
     experience: "6 years",
   },
-]
+];
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case "pending":
-      return "bg-yellow-100 text-yellow-800"
+      return "bg-yellow-100 text-yellow-800";
     case "reviewing":
-      return "bg-blue-100 text-blue-800"
+      return "bg-blue-100 text-blue-800";
     case "interview":
-      return "bg-green-100 text-green-800"
+      return "bg-green-100 text-green-800";
     case "rejected":
-      return "bg-red-100 text-red-800"
+      return "bg-red-100 text-red-800";
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 text-gray-800";
   }
-}
+};
 
 export default function Dashboard() {
+  const { user } = useAuthStore();
+  const { data, isLoading, isValidating } = useCompany<Company>({
+    path: `${user?.companyId}`,
+    shouldFetch: !!user && !!user.companyId,
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-4">
           <SidebarTrigger />
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back! Here's what's happening with your applications.</p>
+            <h1 className="text-2xl font-bold">
+              <IndicatedElement
+                className="w-6 h-6"
+                content={data?.name}
+                isLoading={isLoading || isValidating}
+              />
+            </h1>
+            <p className="text-muted-foreground">
+              Welcome back! Here's what's happening with your applications.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -110,11 +159,15 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Applications
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalApplications.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {stats.totalApplications.toLocaleString()}
+              </div>
               <p className="text-xs text-muted-foreground">
                 <span className="text-green-600">+12%</span> from last month
               </p>
@@ -123,7 +176,9 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Applications</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                New Applications
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -136,18 +191,24 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Pending Review
+              </CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.pendingReview}</div>
-              <p className="text-xs text-muted-foreground">Requires attention</p>
+              <p className="text-xs text-muted-foreground">
+                Requires attention
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Candidates</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Candidates
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -164,7 +225,9 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Applications Overview</CardTitle>
-              <CardDescription>Monthly applications and interviews</CardDescription>
+              <CardDescription>
+                Monthly applications and interviews
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -173,7 +236,11 @@ export default function Dashboard() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="applications" fill="#3b82f6" name="Applications" />
+                  <Bar
+                    dataKey="applications"
+                    fill="#3b82f6"
+                    name="Applications"
+                  />
                   <Bar dataKey="interviews" fill="#10b981" name="Interviews" />
                 </BarChart>
               </ResponsiveContainer>
@@ -192,7 +259,13 @@ export default function Dashboard() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="applications" stroke="#3b82f6" strokeWidth={2} name="Applications" />
+                  <Line
+                    type="monotone"
+                    dataKey="applications"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    name="Applications"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -203,22 +276,37 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Applications</CardTitle>
-            <CardDescription>Latest applications submitted to your company</CardDescription>
+            <CardDescription>
+              Latest applications submitted to your company
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentApplications.map((application) => (
-                <div key={application.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={application.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
                     <div className="flex-1">
-                      <h4 className="font-medium">{application.candidateName}</h4>
-                      <p className="text-sm text-muted-foreground">{application.position}</p>
+                      <h4 className="font-medium">
+                        {application.candidateName}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {application.position}
+                      </p>
                     </div>
-                    <div className="text-sm text-muted-foreground">{application.experience} experience</div>
-                    <Badge className={getStatusColor(application.status)}>{application.status}</Badge>
+                    <div className="text-sm text-muted-foreground">
+                      {application.experience} experience
+                    </div>
+                    <Badge className={getStatusColor(application.status)}>
+                      {application.status}
+                    </Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground">{application.appliedDate}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {application.appliedDate}
+                    </span>
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -230,5 +318,5 @@ export default function Dashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
