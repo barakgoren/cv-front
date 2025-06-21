@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { serverApiService } from "@/services/server-api.service";
 import { ErrorPage, NotFoundPage } from "@/components/error-page";
 import { PageProps } from "@/types/application";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -91,19 +92,26 @@ export default async function ApplicationForm({
     return <NotFoundPage />;
   }
 
+  async function submitForm(formData: FormData) {
+    "use server";
+
+    // Optional: redirect after submission
+    // redirect("/success");
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-300 to-blue-500 flex items-center justify-center">
-      <Card className="w-full max-w-md rounded-3xl shadow-2xl bg-white/90 backdrop-blur-md">
-        <CardHeader className="flex flex-col items-center">
-          <CardTitle className="text-3xl font-extrabold text-blue-700 tracking-tight text-center">
-            {appData.name}
-          </CardTitle>
-          <CardDescription className="text-slate-500 text-center text-base mt-2">
-            {appData.description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="w-full flex flex-col gap-5">
+    <form className="w-full flex flex-col gap-5" action={submitForm}>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-300 to-blue-500 flex items-center justify-center">
+        <Card className="w-full max-w-md rounded-3xl shadow-2xl bg-white/90 backdrop-blur-md">
+          <CardHeader className="flex flex-col items-center">
+            <CardTitle className="text-3xl font-extrabold text-blue-700 tracking-tight text-center">
+              {appData.name}
+            </CardTitle>
+            <CardDescription className="text-slate-500 text-center text-base mt-2">
+              {appData.description}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="flex flex-col gap-1">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -142,9 +150,9 @@ export default async function ApplicationForm({
             >
               Submit
             </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </form>
   );
 }
