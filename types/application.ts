@@ -1,10 +1,25 @@
 export interface Application {
-  id: string;
-  name: string;
-  description: string;
-  companyId: string;
-  createdAt: string;
-  updatedAt: string;
+  id: number;
+  fullName: string;
+  applicationTypeId: number;
+  applicationTypeName?: string; // Optional, if available
+  companyName?: string; // Optional, if available
+  customFields: Record<string, any>;
+  companyId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ServerApplication {
+  uid: number;
+  applicationTypeId: number;
+  fullName: string;
+  customFields: Record<string, any>;
+  companyId: number;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  applicationTypeName?: string; // Optional, if available
+  companyName?: string; // Optional, if available
 }
 
 export interface PublicCompany {

@@ -17,15 +17,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Link2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Template } from "@/types/template";
 import {
-  updateTemplateSchema,
-  UpdateTemplateSchema,
+  createTemplateSchema,
+  CreateTemplateSchema,
 } from "@/schema/template.schema";
 import { templateService } from "@/services/template.service";
 import PageWrapper from "@/components/page-wrapper";
+import FormFieldsPicker from "@/components/form-fields-picker";
+import { lookForParam } from "@/lib/utils";
+import Link from "next/link";
 
 interface TemplateCardProps {
   template?: Template;
@@ -37,15 +40,16 @@ export default function TemplateCard({ template }: TemplateCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = !!template;
 
-  const form = useForm<UpdateTemplateSchema>({
-    resolver: zodResolver(updateTemplateSchema),
+  const form = useForm<CreateTemplateSchema>({
+    resolver: zodResolver(createTemplateSchema),
     defaultValues: {
       name: template?.name || "",
       description: template?.description || "",
       isActive: template?.isActive ?? true,
+      formFields: template?.formFields || [],
     },
   });
-  const handleSubmit = async (values: UpdateTemplateSchema) => {
+  const handleSubmit = async (values: CreateTemplateSchema) => {
     try {
       setIsSubmitting(true);
 
@@ -93,30 +97,49 @@ export default function TemplateCard({ template }: TemplateCardProps) {
   };
 
   const handleError = (errors: any) => {
-    console.log("Form validation errors:", errors);
+    const errorMessage = lookForParam("message", errors);
+    if (errorMessage) {
+      toast({
+        title: "Error",
+        description: errorMessage || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <PageWrapper>
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.back()}
-          className="h-7 w-7"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="sr-only">Back</span>
-        </Button>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => router.back()}
+            className="h-7 w-7"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {isEditMode ? "Edit Template" : "Create New Template"}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEditMode
+                ? "Update the template details below"
+                : "Fill in the details to create a new template"}
+            </p>
+          </div>
+        </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {isEditMode ? "Edit Template" : "Create New Template"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditMode
-              ? "Update the template details below"
-              : "Fill in the details to create a new template"}
-          </p>
+          <Link
+            href={`/view/${template?.companyId}?applicationId=${template?.id}`}
+            target="_blank"
+          >
+            <Button variant="outline" size="icon" tooltip="View Template">
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -196,6 +219,26 @@ export default function TemplateCard({ template }: TemplateCardProps) {
                   )}
                 </div>
               )}
+            />
+
+            <Controller
+              name="formFields"
+              control={form.control}
+              render={({ field, fieldState }) => {
+                return (
+                  <div className="space-y-2">
+                    <FormFieldsPicker
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    {fieldState.error && (
+                      <p className="text-sm text-red-500">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                );
+              }}
             />
 
             <div className="flex items-center gap-3 pt-4">

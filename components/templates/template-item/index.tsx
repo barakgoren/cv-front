@@ -1,18 +1,42 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { templateService } from "@/services/template.service";
 import { Template } from "@/types/template";
 import { MoreVertical, Edit2, Eye, Trash2, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useCompany } from "@/services/company.service";
+import { Company } from "@/types/company.type";
 
 interface TemplateItemProps {
   template: Template;
@@ -20,10 +44,10 @@ interface TemplateItemProps {
   onTemplateDelete?: (templateId: string) => void;
 }
 
-export default function TemplateItem({ 
-  template, 
-  onTemplateUpdate, 
-  onTemplateDelete 
+export default function TemplateItem({
+  template,
+  onTemplateUpdate,
+  onTemplateDelete,
 }: TemplateItemProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -32,23 +56,33 @@ export default function TemplateItem({
   const [isDeleting, setIsDeleting] = useState(false);
   const [localTemplate, setLocalTemplate] = useState(template);
 
+  const { data } = useCompany<Company>({
+    path: `${template.companyId}`,
+    shouldFetch: !!template.companyId,
+  });
+
   const handleStatusToggle = async (checked: boolean) => {
     setIsToggling(true);
-    
+
     // Optimistic update
     const previousTemplate = localTemplate;
     const optimisticTemplate = { ...localTemplate, isActive: checked };
     setLocalTemplate(optimisticTemplate);
-    
+
     try {
-      const result = await templateService.toggleTemplateStatus(template.id, checked);
-      
+      const result = await templateService.toggleTemplateStatus(
+        template.id,
+        checked
+      );
+
       if (result) {
         setLocalTemplate(result);
         onTemplateUpdate?.(result);
         toast({
           title: "Success",
-          description: `Template ${checked ? 'activated' : 'deactivated'} successfully`,
+          description: `Template ${
+            checked ? "activated" : "deactivated"
+          } successfully`,
         });
       } else {
         // Revert on failure
@@ -77,19 +111,19 @@ export default function TemplateItem({
   };
 
   const handleView = () => {
-    router.push(`/view/${template.companyId}?template=${template.id}`);
+    router.push(`/view/${data?.name}?applicationId=${template.id}`);
   };
 
   const handleViewInNewTab = () => {
-    window.open(`/view/${template.companyId}?template=${template.id}`, '_blank');
+    window.open(`/view/${data?.name}?applicationId=${template.id}`, "_blank");
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    
+
     try {
       const result = await templateService.deleteTemplate(template.id);
-      
+
       if (result) {
         onTemplateDelete?.(template.id);
         toast({
@@ -134,7 +168,7 @@ export default function TemplateItem({
               </CardDescription>
             </div>
             <div className="flex items-center gap-2 ml-2">
-              <Badge 
+              <Badge
                 variant={localTemplate.isActive ? "default" : "secondary"}
                 className="text-xs"
               >
@@ -165,7 +199,7 @@ export default function TemplateItem({
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => setShowDeleteDialog(true)}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
@@ -182,13 +216,16 @@ export default function TemplateItem({
           <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
             {localTemplate.description}
           </p>
-          
+
           <div className="flex items-center justify-between">
             <div className="text-xs text-muted-foreground">
               Updated {formatDate(localTemplate.updatedAt)}
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor={`active-${template.id}`} className="text-sm font-medium">
+              <label
+                htmlFor={`active-${template.id}`}
+                className="text-sm font-medium"
+              >
                 Active
               </label>
               <Switch
@@ -229,13 +266,12 @@ export default function TemplateItem({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{template.name}"? This action cannot be undone.
+              Are you sure you want to delete "{template.name}"? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}

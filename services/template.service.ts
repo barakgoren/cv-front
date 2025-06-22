@@ -33,7 +33,7 @@ const createTemplate = async (template: CreateTemplateSchema): Promise<Template 
     return null;
 }
 
-const updateTemplate = async (id: string, updates: Partial<Template>): Promise<Template | null> => {
+const updateTemplate = async (id: number, updates: Partial<Template>): Promise<Template | null> => {
     const res = await http.put(`/${ENDPOINT}/${id}`, updates);
     if (res && res.data) {
         return serializeTemplate(res.data);
