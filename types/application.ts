@@ -1,3 +1,5 @@
+import { LinkPreview } from "./link-preview";
+
 export interface Application {
   id: number;
   fullName: string;
@@ -5,6 +7,7 @@ export interface Application {
   applicationTypeName?: string; // Optional, if available
   companyName?: string; // Optional, if available
   customFields: Record<string, any>;
+  linkPreviews?: { key: string; preview: LinkPreview }[];
   companyId: number;
   createdAt: Date;
   updatedAt: Date;
@@ -15,6 +18,7 @@ export interface ServerApplication {
   applicationTypeId: number;
   fullName: string;
   customFields: Record<string, any>;
+  linkPreviews?: { key: string; preview: LinkPreview }[];
   companyId: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string

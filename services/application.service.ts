@@ -50,6 +50,7 @@ export function serialize(raw: ServerApplication): Application {
         customFields: raw.customFields,
         applicationTypeName: raw.applicationTypeName,
         companyName: raw.companyName,
+        linkPreviews: raw.linkPreviews,
         companyId: raw.companyId,
         createdAt: new Date(raw.createdAt),
         updatedAt: new Date(raw.updatedAt),

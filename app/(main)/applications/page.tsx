@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -53,6 +54,7 @@ import { format } from "date-fns";
 import DataTable from "@/components/data-table";
 
 export default function Applications() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [applicationTypeFilter, setApplicationTypeFilter] = useState("all");
   const { user } = useAuthStore((state) => state);
@@ -136,13 +138,22 @@ export default function Applications() {
                 }}
                 renderMap={{
                   createdAt: (date) => format(new Date(date), "MMM dd, yyyy"),
+                  applicationTypeName: (type) => {
+                    return (
+                      <Badge
+                        variant="default"
+                        className="bg-blue-400/50 borde border-blue-400 text-black"
+                      >
+                        {type}
+                      </Badge>
+                    );
+                  },
                 }}
                 actions={[
                   {
                     icon: <Eye className="h-4 w-4" />,
                     onClick: (application) => {
-                      // Handle view details action
-                      console.log("View details for:", application);
+                      router.push(`/applications/${application.id}`);
                     },
                   },
                 ]}
