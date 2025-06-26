@@ -318,6 +318,22 @@ export default function ApplicationForm() {
     applicationTypeId?: number;
     customFields: Record<string, any>;
   }) => {
+    const formData = new FormData();
+    formData.append("fullName", data.fullName);
+    formData.append("companyId", data.companyId.toString());
+    if (data.applicationTypeId) {
+      formData.append("applicationTypeId", data.applicationTypeId.toString());
+    }
+    // Append custom fields
+    Object.entries(data.customFields).forEach(([key, value]) => {
+      if (value instanceof File) {
+        formData.append(`customFields[${key}]`, value);
+      } else {
+        formData.append(`customFields[${key}]`, value || "");
+      }
+    });
+    console.log({ data, formData });
+
     const message = await applicationService.postApplication(data);
     toast({
       title: "Application Submitted",

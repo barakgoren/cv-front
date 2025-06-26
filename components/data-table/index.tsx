@@ -12,6 +12,7 @@ import { KeyMap } from "@/types/key-map.type";
 import { RenderMap } from "@/types/render-map.type";
 import MinObject from "@/types/min-object.type";
 import Action from "@/types/action.type";
+import Loader from "../loader";
 
 // type Action<T extends MinObject> = {
 //   label?: string
@@ -26,6 +27,7 @@ interface DataTableProps<T extends MinObject> {
   keyMap?: KeyMap<T>;
   renderMap?: RenderMap<T>;
   actions?: Action<T>[];
+  loading?: boolean;
 }
 
 export default function DataTable<T extends MinObject>({
@@ -33,6 +35,7 @@ export default function DataTable<T extends MinObject>({
   keyMap,
   renderMap,
   actions,
+  loading = false,
 }: DataTableProps<T>) {
   const renderedKeyMap = useMemo(() => {
     if (keyMap) return keyMap;
@@ -78,7 +81,21 @@ export default function DataTable<T extends MinObject>({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.length === 0 ? (
+        {loading ? (
+          <TableRow>
+            <TableCell
+              colSpan={Object.keys(renderedKeyMap).length + (actions ? 1 : 0)}
+              className="py-8 text-muted-foreground"
+            >
+              <div className="flex w-full items-center justify-center gap-2">
+                <div className="w-4 h-4">
+                  <Loader />
+                </div>
+                Loading data...
+              </div>
+            </TableCell>
+          </TableRow>
+        ) : data.length === 0 ? (
           <TableRow>
             <TableCell
               colSpan={Object.keys(renderedKeyMap).length + (actions ? 1 : 0)}

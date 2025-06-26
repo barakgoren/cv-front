@@ -59,12 +59,14 @@ export default function Applications() {
   const [applicationTypeFilter, setApplicationTypeFilter] = useState("all");
   const { user } = useAuthStore((state) => state);
 
-  const { data: serverApplications = [] } = useApplication<ServerApplication[]>(
-    {
-      path: `company/${user?.companyId}`,
-      shouldFetch: !!user && !!user.companyId,
-    }
-  );
+  const {
+    data: serverApplications = [],
+    isLoading,
+    isValidating,
+  } = useApplication<ServerApplication[]>({
+    path: `company/${user?.companyId}`,
+    shouldFetch: !!user && !!user.companyId,
+  });
 
   const applications = useMemo(() => {
     return serverApplications.map(applicationService.serialize);
@@ -129,6 +131,7 @@ export default function Applications() {
           <CardContent>
             <div className="rounded-md border">
               <DataTable<Application>
+                loading={isLoading || isValidating}
                 data={applications}
                 keyMap={{
                   id: "#",

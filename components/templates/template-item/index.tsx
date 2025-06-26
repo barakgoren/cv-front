@@ -111,11 +111,11 @@ export default function TemplateItem({
   };
 
   const handleView = () => {
-    router.push(`/view/${data?.name}?applicationId=${template.id}`);
+    router.push(`/view/${template.id}`);
   };
 
   const handleViewInNewTab = () => {
-    window.open(`/view/${data?.name}?applicationId=${template.id}`, "_blank");
+    window.open(`/view/${template.id}`, "_blank");
   };
 
   const handleDelete = async () => {

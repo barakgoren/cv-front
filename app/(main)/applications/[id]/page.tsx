@@ -29,6 +29,7 @@ import Loader from "@/components/loader";
 import { ErrorPage } from "@/components/error-page";
 import Link from "next/link";
 import { LinkPreviewCard } from "@/components/link-preview-card";
+import { FilePreview } from "@/components/file-preview";
 
 // Helper function to render custom field value
 const renderCustomFieldValue = (
@@ -46,15 +47,8 @@ const renderCustomFieldValue = (
     key.toLowerCase().includes("resume") ||
     key.toLowerCase().includes("file")
   ) {
-    if (value) {
-      return (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download {key}
-          </Button>
-        </div>
-      );
+    if (value && typeof value === "string") {
+      return <FilePreview fileUrl={value} fileName={value} showInline={true} />;
     }
     return <span className="text-muted-foreground">No file uploaded</span>;
   }
@@ -170,7 +164,9 @@ export default function ApplicationView() {
           </div>
         </header>
         <div className="flex-1 flex items-center justify-center">
-          <Loader />
+          <div className="w-16 h-16">
+            <Loader />
+          </div>
         </div>
       </div>
     );
@@ -284,6 +280,17 @@ export default function ApplicationView() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                <div>
+                  <div className="flex flex-col gap-2">
+                    <h4 className="font-semibold text-sm text-muted-foreground">
+                      Full name
+                    </h4>
+                    <div className="text-sm">
+                      {application.fullName || "Not provided"}
+                    </div>
+                  </div>
+                  <Separator className="mt-4" />
+                </div>
                 {customFieldEntries.map(([key, value], index) => (
                   <div key={key}>
                     <div className="flex flex-col gap-2">

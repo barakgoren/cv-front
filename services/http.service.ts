@@ -21,6 +21,9 @@ const http = {
     post(endpoint: string, data: unknown = null, params: Record<string, unknown> = {}) {
         return ajax(endpoint, 'POST', data, params)
     },
+    postMultipart(endpoint: string, data: Record<string, any>, params: Record<string, unknown> = {}) {
+        return ajax(endpoint, 'POST', data, params, true);
+    },
     put(endpoint: string, data: unknown = null, params: Record<string, unknown> = {}) {
         return ajax(endpoint, 'PUT', data, params)
     },
@@ -29,7 +32,7 @@ const http = {
     },
     delete(endpoint: string, data: unknown = null, params: Record<string, unknown> = {}) {
         return ajax(endpoint, 'DELETE', data, params)
-    }
+    },
 }
 
 const handleError = (response: HttpResponse) => {
@@ -87,15 +90,27 @@ const handleError = (response: HttpResponse) => {
     }
 }
 
-async function ajax(endpoint: string, method = 'GET', data: unknown = null, params: Record<string, unknown> = {}) {
+async function ajax(endpoint: string, method = 'GET', data: unknown = null, params: Record<string, unknown> = {}, isMultipart = false) {
     try {
         const { noError, ...cleanParams } = params
-        const res = await axios({
+
+        const config: any = {
             url: `${BASE_URL}${endpoint}`,
             method,
             data,
             params: cleanParams,
-        })
+        };
+
+        // Don't set Content-Type for multipart data - let axios handle it
+        console.log({ isMultipart });
+        if (isMultipart) {
+
+            config.headers = {
+                'Content-Type': 'multipart/form-data'
+            };
+        }
+
+        const res = await axios(config)
 
         return res.data
     } catch (err: unknown) {

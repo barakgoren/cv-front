@@ -36,7 +36,12 @@ export const useApplication = <T = any>({ path = "", shouldFetch = true, include
 };
 
 const postApplication = async (data: Record<string, any>) => {
-    const response = await http.post(`${ENDPOINT}`, data);
+    // Check if the data contains any File objects
+    // const hasFiles = http.hasFileData(data);
+    console.log({ data });
+
+    const response = await http.postMultipart(`${ENDPOINT}`, data);
+
     if (response) {
         return response.data;
     }
