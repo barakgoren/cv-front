@@ -43,6 +43,8 @@ import {
   Mail,
   Phone,
   Calendar,
+  ArrowsUpFromLine,
+  ArrowLeftRight,
 } from "lucide-react";
 import {
   applicationService,
@@ -52,11 +54,22 @@ import { useAuthStore } from "@/store/auth.store";
 import { Application, ServerApplication } from "@/types/application";
 import { format } from "date-fns";
 import DataTable from "@/components/data-table";
+import MultiAction from "@/components/multi-action-panel";
+import useGlobalStore from "@/store/global.store";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Applications() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [applicationTypeFilter, setApplicationTypeFilter] = useState("all");
+  const { toast } = useToast();
+  // const [selectedApplicationIds, setSelectedApplicationIds] = useState<
+  //   string[]
+  // >([]);
+  const {
+    selectedItems: selectedApplicationIds,
+    setSelectedItems: setSelectedApplicationIds,
+  } = useGlobalStore((state) => state);
   const { user } = useAuthStore((state) => state);
 
   const {
@@ -131,6 +144,10 @@ export default function Applications() {
           <CardContent>
             <div className="rounded-md border">
               <DataTable<Application>
+                selectable
+                onSelectionChange={(selectedIds) => {
+                  setSelectedApplicationIds(selectedIds);
+                }}
                 loading={isLoading || isValidating}
                 data={applications}
                 keyMap={{
@@ -165,6 +182,43 @@ export default function Applications() {
           </CardContent>
         </Card>
       </div>
+      <MultiAction
+        isOpen={selectedApplicationIds.length > 0}
+        itemIds={selectedApplicationIds}
+        actions={[
+          {
+            label: "Compare",
+            icon: <ArrowLeftRight />,
+            onClick: () => {
+              console.log("Compare selected");
+              const selectedApplications = selectedApplicationIds.map((id) =>
+                applications.find((app) => app.id.toString() === id)
+              );
+              const hasSameType = selectedApplications.every(
+                (app) =>
+                  app?.applicationTypeId ===
+                  selectedApplications[0]?.applicationTypeId
+              );
+              if (!hasSameType) {
+                toast({
+                  title: "Cannot compare applications",
+                  description:
+                    "Selected applications must be for the same position.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              const applicationTypeId =
+                selectedApplications[0]?.applicationTypeId;
+
+              // Navigate to compare page
+              router.push(
+                `/applications/compare?applicationTypeId=${applicationTypeId}`
+              );
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

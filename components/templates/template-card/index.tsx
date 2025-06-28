@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, ExternalLink, Link2, Loader2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Link2, Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Template } from "@/types/template";
 import {
@@ -29,6 +29,7 @@ import PageWrapper from "@/components/page-wrapper";
 import FormFieldsPicker from "@/components/form-fields-picker";
 import { lookForParam } from "@/lib/utils";
 import Link from "next/link";
+import QualiPicker from "./qualy-picker";
 
 interface TemplateCardProps {
   template?: Template;
@@ -47,6 +48,7 @@ export default function TemplateCard({ template }: TemplateCardProps) {
       description: template?.description || "",
       isActive: template?.isActive ?? true,
       formFields: template?.formFields || [],
+      qualifications: template?.qualifications || [],
     },
   });
   const handleSubmit = async (values: CreateTemplateSchema) => {
@@ -198,6 +200,13 @@ export default function TemplateCard({ template }: TemplateCardProps) {
                   )}
                 </div>
               )}
+            />
+            <Controller
+              name="qualifications"
+              control={form.control}
+              render={({ field, fieldState }) => {
+                return <QualiPicker {...field} fieldState={fieldState} />;
+              }}
             />
 
             <Controller

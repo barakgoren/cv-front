@@ -38,6 +38,7 @@ const createTemplateSchema = z.object({
         required_error: 'Active status is required',
         invalid_type_error: 'Active status must be a boolean',
     }).default(true),
+    qualifications: z.array(z.string()).optional(),
     formFields: z.array(formFieldSchema, {
         required_error: 'At least one form field is required',
         invalid_type_error: 'Form fields must be an array of valid form field objects',

@@ -65,7 +65,8 @@ export const templateService = {
     updateTemplate,
     toggleTemplateStatus,
     deleteTemplate,
-    getTemplate
+    getTemplate,
+    serializeTemplate
 }
 
 

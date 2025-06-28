@@ -6,6 +6,7 @@ export type Template = {
     isActive: boolean; // Whether the template is active or not
     createdAt: Date; // Creation date of the template
     updatedAt: Date; // Last update date of the template
+    qualifications?: string[]; // Optional array of qualifications associated with the template
     formFields: FormField[]; // Array of form fields associated with the template
 }
 

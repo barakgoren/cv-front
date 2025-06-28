@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import http from "./http.service";
 import { Application, ServerApplication } from "@/types/application";
+import { ApplicantsCompareResponse } from "@/types/ai-responses.type";
 
 const ENDPOINT = "/application";
 
@@ -47,6 +48,24 @@ const postApplication = async (data: Record<string, any>) => {
     }
 }
 
+const compareApplications = async (applicationIds: string[], applicationTypeId: string): Promise<ApplicantsCompareResponse | null> => {
+    console.log({ applicationIds, applicationTypeId });
+
+    if (!applicationIds || applicationIds.length === 0 || !applicationTypeId || isNaN(Number(applicationTypeId)) || applicationIds.some(id => isNaN(Number(id)))) {
+        return null;
+    }
+    const numeralizedIds = applicationIds.map(id => Number(id));
+    const numeralizedTypeId = Number(applicationTypeId);
+    const response = await http.post(`${ENDPOINT}/compare`, {
+        applicationIds: numeralizedIds,
+        applicationTypeId: numeralizedTypeId,
+    });
+    if (response) {
+        return response.data as ApplicantsCompareResponse;
+    }
+    return null;
+}
+
 export function serialize(raw: ServerApplication): Application {
     return {
         id: raw.uid,
@@ -64,5 +83,6 @@ export function serialize(raw: ServerApplication): Application {
 
 export const applicationService = {
     postApplication,
+    compareApplications,
     serialize
 };
