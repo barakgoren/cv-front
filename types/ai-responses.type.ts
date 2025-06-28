@@ -7,6 +7,8 @@ export type ApplicantStructure = {
         location?: string;
         experience?: string;
         skills?: string[];
+        keyStrengths?: string[];
+        areaForImprovement?: string[];
         salaryExpectation?: string;
     };
     matchPrecentage: number;
