@@ -69,7 +69,7 @@ export function AddTemplateButton({
   };
 
   const trigger = (
-    <Button>
+    <Button onClick={() => setIsDialogOpen(true)}>
       <Plus className="h-4 w-4 mr-2" />
       Add Template
     </Button>
